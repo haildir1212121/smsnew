@@ -1,6 +1,4 @@
-Perfect! I found the issue. Your validateToken function is not checking for the access_as_user scope!
-The token is being validated but the scope check is missing. Here's the fix:
-javascriptconst jwt = require("jsonwebtoken");
+const jwt = require("jsonwebtoken");
 const jwksClient = require("jwks-rsa");
 
 const tenantId = process.env.AZURE_AD_TENANT_ID;
