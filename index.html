@@ -8,7 +8,16 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <script src="https://unpkg.com/@azure/msal-browser@2.38.3/lib/msal-browser.min.js"></script>
+  <script src="https://alcdn.msauth.net/browser/2.38.3/js/msal-browser.min.js" crossorigin="anonymous"></script>
+  <script>
+    // Fallback: if the primary CDN was blocked, try unpkg
+    if (typeof msal === "undefined") {
+      var s = document.createElement("script");
+      s.src = "https://unpkg.com/@azure/msal-browser@2.38.3/lib/msal-browser.min.js";
+      s.crossOrigin = "anonymous";
+      document.head.appendChild(s);
+    }
+  </script>
   
   <style>
     body { font-family: 'Inter', sans-serif; background-color: #f3f4f6; overflow: hidden; }
@@ -231,7 +240,7 @@
   // =========================================================================
   const AZURE_AD_CLIENT_ID = "16cbe67e-1a93-481e-b6af-2c6f00bb0a3b";       // App Registration client ID
   const AZURE_AD_TENANT_ID = "7da30f5a-f37e-4a03-8647-1d9bfd4d4b77";       // Azure AD tenant ID
-  const AZURE_AD_REDIRECT_URI = "http://localhost:8080";  // Redirect URI registered in Azure
+  const AZURE_AD_REDIRECT_URI = window.location.origin + "/";  // Redirect URI registered in Azure
   const API_BASE = "/api";  // Azure Functions API base (use relative path when co-hosted via Azure Static Web Apps, or full URL for separate deployment)
 
   // =========================================================================
@@ -825,4 +834,3 @@ const ymd = (ms) => {
 </script>
 </body>
 </html>
-
