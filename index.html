@@ -358,9 +358,9 @@
     });
 
     if (res.status === 401) {
-      window.signOut();
-      return null;
-    }
+  console.warn("API returned 401");
+  return null;
+}
 
     return res.json();
   }
