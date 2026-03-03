@@ -316,7 +316,9 @@
     if (accessToken) return accessToken;
 
     const accounts = msalInstance.getAllAccounts();
-    if (!accounts.length) return null;
+    if (accounts.length > 0) {
+  msalInstance.setActiveAccount(accounts[0]);
+}
 
     try {
       const resp = await msalInstance.acquireTokenSilent({
