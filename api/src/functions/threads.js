@@ -2,7 +2,7 @@ const { app } = require("@azure/functions");
 const { getCosmosClient } = require("../shared/cosmos");
 const { requireAuth } = require("../shared/auth");
 
-const ORG_ID = "dispatch_team_main";
+const ORG_ID = "dispatchcommand";
 
 // GET /api/threads - List all threads for the organization
 app.http("getThreads", {
