@@ -8,8 +8,8 @@ let logsContainer;
 function getCosmosClient() {
   if (!client) {
     client = new CosmosClient({
-      endpoint: process.env.COSMOS_ENDPOINT,
-      key: process.env.COSMOS_KEY,
+      endpoint: process.env.COSMOS_ENDPOINT || "https://smsdlx.documents.azure.com:443/",
+      key: process.env.COSMOS_KEY,  // Must be set in Azure SWA Application Settings
     });
     database = client.database(process.env.COSMOS_DATABASE || "dispatchcommand");
     threadsContainer = database.container("threads");

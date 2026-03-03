@@ -1,10 +1,8 @@
 const jwt = require("jsonwebtoken");
 const jwksClient = require("jwks-rsa");
 
-const tenantId = process.env.AZURE_AD_TENANT_ID;
-const clientId = process.env.AZURE_AD_CLIENT_ID;
-
-console.log("Auth Config:", { tenantId, clientId }); // Debug log
+const tenantId = process.env.AZURE_AD_TENANT_ID || "7da30f5a-f37e-4a03-8647-1d9bfd4d4b77";
+const clientId = process.env.AZURE_AD_CLIENT_ID || "16cbe67e-1a93-481e-b6af-2c6f00bb0a3b";
 
 const jwks = jwksClient({
   jwksUri: `https://login.microsoftonline.com/${tenantId}/discovery/v2.0/keys`,
