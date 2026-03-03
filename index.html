@@ -352,6 +352,14 @@
       headers["Content-Type"] = "application/json";
     }
 
+     if (token) {
+      headers["Authorization"] = `Bearer ${token}`;
+    }
+
+    if (options.body && !(options.body instanceof FormData)) {
+      headers["Content-Type"] = "application/json";
+    }
+
     const res = await fetch(`${API_BASE}${path}`, {
       ...options,
       headers
