@@ -235,7 +235,7 @@
   </div>
 
 <script>
-  // =========================================================================
+ // =========================================================================
   // Azure Configuration
   // =========================================================================
   const AZURE_AD_CLIENT_ID = "16cbe67e-1a93-481e-b6af-2c6f00bb0a3b";
@@ -316,9 +316,14 @@
     if (accessToken) return accessToken;
 
     const accounts = msalInstance.getAllAccounts();
-    if (accounts.length > 0) {
-  msalInstance.setActiveAccount(accounts[0]);
-}
+    
+    // ✅ FIX: Check if accounts exist before accessing them
+    if (accounts.length === 0) {
+      console.warn("No accounts found");
+      return null;
+    }
+
+    msalInstance.setActiveAccount(accounts[0]);
 
     try {
       const resp = await msalInstance.acquireTokenSilent({
@@ -330,7 +335,7 @@
       return accessToken;
 
     } catch (e) {
-      console.warn("Silent token failed");
+      console.warn("Silent token failed:", e);
 
       if (!interactionInProgress && msalReady) {
         interactionInProgress = true;
@@ -341,37 +346,48 @@
     }
   }
 
+  // ✅ FIX: Updated apiFetch to include Authorization Bearer token
   async function apiFetch(path, options = {}) {
+    // Get the latest token before making the request
+    const authToken = await getToken();
     
-
     const headers = {
-  ...options.headers
-};
+      ...options.headers
+    };
 
-    if (options.body && !(options.body instanceof FormData)) {
-      headers["Content-Type"] = "application/json";
-    }
-
-     if (token) {
-      headers["Authorization"] = `Bearer ${token}`;
+    // Add Authorization header with Bearer token
+    if (authToken) {
+      headers["Authorization"] = `Bearer ${authToken}`;
     }
 
     if (options.body && !(options.body instanceof FormData)) {
       headers["Content-Type"] = "application/json";
     }
 
-    const res = await fetch(`${API_BASE}${path}`, {
-      ...options,
-      headers
-    });
+    try {
+      const res = await fetch(`${API_BASE}${path}`, {
+        ...options,
+        headers
+      });
 
-    if (res.status === 401) {
-  console.warn("API returned 401");
-  return null;
-}
+      if (res.status === 401) {
+        console.warn("API returned 401 - Token may be invalid or expired");
+        accessToken = null; // Clear the cached token
+        return null;
+      }
 
-    return res.json();
+      if (!res.ok) {
+        console.error(`API error ${res.status}: ${res.statusText}`);
+        return null;
+      }
+
+      return res.json();
+    } catch (e) {
+      console.error("apiFetch error:", e);
+      return null;
+    }
   }
+
   let store = { threads: [], logs: [], activeThreadId: null, activeThread: null, pinned: new Set(), drafts: {}, cannedReplies: [], deletedSids: new Set(), lastInboundSidSeen: new Set(), isPolling: false, pendingMedia: [], isFirstLoad: true, onlyUnread: false, onlyUrgent: false, tagFilter: new Set(), notifQueue: {}, notifTimer: null, cmPage: 1, logPage: 1, itemsPerPage: 15 };
   window.store = store;
 
