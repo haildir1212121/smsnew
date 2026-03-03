@@ -274,8 +274,10 @@
         cacheLocation: "localStorage"
       }
     });
-
-    loginRequest.scopes = ["openid", "profile", "email"];
+loginRequest.scopes = [
+  "api://16cbe67e-1a93-481e-b6af-2c6f00bb0a3b/access_as_user"  // Replace with your API's client ID
+];
+    
 
     await msalInstance.initialize();
     return true;
