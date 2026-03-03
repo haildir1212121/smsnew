@@ -249,7 +249,7 @@
   let msalInstance = null;
   const loginRequest = { scopes: [] }; // populated in boot()
   let accessToken = null;
-
+  let interactionInProgress = false;
   async function ensureMsal() {
     if (msalInstance) return true;
     if (typeof msal === "undefined" || !msal.PublicClientApplication) {
@@ -291,7 +291,10 @@
     } catch (e) {
       // Silent token acquisition failed — force re-login via redirect
       console.warn("Token expired, redirecting to login", e);
-      await msalInstance.acquireTokenRedirect(loginRequest);
+      if (!interactionInProgress) {
+  interactionInProgress = true;
+  await msalInstance.acquireTokenRedirect(loginRequest);
+}
       return null; // page will redirect, this won't execute
     }
   }
@@ -309,17 +312,20 @@
   }
 
   window.signIn = async () => {
-    try {
-      if (!await ensureMsal()) return;
-      document.getElementById("loginError").classList.add("hidden");
-      await msalInstance.loginRedirect(loginRequest);
-    } catch (e) {
-      const errEl = document.getElementById("loginError");
-      errEl.textContent = e.message || "Sign-in failed. Please try again.";
-      errEl.classList.remove("hidden");
-    }
-  };
+  if (interactionInProgress) return;
 
+  try {
+    if (!await ensureMsal()) return;
+
+    interactionInProgress = true;
+    await msalInstance.loginRedirect(loginRequest);
+  } catch (e) {
+    interactionInProgress = false;
+    const errEl = document.getElementById("loginError");
+    errEl.textContent = e.message || "Sign-in failed.";
+    errEl.classList.remove("hidden");
+  }
+};
   window.signOut = () => {
     if (msalInstance) msalInstance.logoutRedirect();
   };
@@ -821,6 +827,7 @@ const ymd = (ms) => {
       if (!await ensureMsal()) return; // MSAL library not available — login overlay shows error
       try {
           const redirectResult = await msalInstance.handleRedirectPromise();
+          interactionInProgress = false;
           if (redirectResult) {
               // Just returned from Microsoft redirect — use the token directly
               accessToken = redirectResult.accessToken;
