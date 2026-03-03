@@ -827,8 +827,12 @@ const ymd = (ms) => {
   window.copyActivePhone = () => { navigator.clipboard.writeText(store.activeThread?.phone); window.showToast("Copied"); };
   
   async function initApp() {
-      // Load initial threads from Azure API
-      await refreshThreads();
+    if (!accessToken) {
+        console.warn("No token yet, delaying init");
+        return;
+    }
+
+    await refreshThreads();
       // Start polling for new inbound messages
       setInterval(poll, 8000);
       store.cannedReplies = JSON.parse(localStorage.getItem("canned")||"[]"); window.renderQuickReplies();
