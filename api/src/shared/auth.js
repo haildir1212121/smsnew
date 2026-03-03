@@ -33,7 +33,7 @@ async function validateToken(request) {
       token,
       getSigningKey,
       {
-        audience: clientId,
+        audience: `api://${clientId}`,
         issuer: `https://login.microsoftonline.com/${tenantId}/v2.0`,
         algorithms: ["RS256"],
       },
